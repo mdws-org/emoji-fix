@@ -1,0 +1,27 @@
+Ranked by severity. All references are to the files in your message.
+
+**1. [Security] The font family name is squattable by any page.** `emoji-fix.js:6,23` prepends the fixed, guessable family `"EmojiFixNoto"` ahead of the page's stack. Your `<style>` is appended at `document_start`, i.e. *before* page stylesheets, and for `@font-face` the later same-name declaration wins over overlapping unicode-range. So a hostile page ships `@font-face{font-family:EmojiFixNoto;src:url(//evil/x.woff2);unicode-range:U+0-10FFFF}` and every element you touched (and all other text in it, since you prepended the family to the element, not to the characters) renders in the attacker's font — glyph-substitution phishing plus a font-load beacon that confirms your extension is installed. Fix: generate a random family name per session (`EmojiFixNoto-<crypto.randomUUID()>`) and use it in both the `@font-face` and the inline style.
+
+**2. [Security] Extension ID is fingerprintable.** `manifest.json:29-38` exposes the font to `<all_urls>` with no `"use_dynamic_url"`. Any site can `fetch('chrome-extension://<id>/fonts/NotoColorEmoji.woff2')` to detect installation and read a stable ID (the pivot for extension-targeting pages). Add `"use_dynamic_url": true`; `chrome.runtime.getURL()` then yields a per-origin rotating URL and the injected `@font-face` still loads. No permissions are requested and there is no network egress, so this is the main leak.
+
+**3. [Security] The MAIN-world `attachShadow` patch is detectable and defeatable.** `shadow-hook.js:5-11`: `Element.prototype.attachShadow.toString()` returns your wrapper source rather than `[native code]`, and `Object.getOwnPropertyDescriptor`/`name` checks differ — a page can fingerprint to serve different content, restore the native function to stop the event stream, or `stopImmediatePropagation` on the capture path before your document listener (`emoji-fix.js:61`) sees it. The page can also dispatch fake `emojifix-shadow` events in a loop to force repeated `watchShadow` scans (cheap DoS). Give the wrapper a matching `toString`/`name`, and treat the event as a hint only (see #9/#12).
+
+**4. [Correctness/Perf] `\p{Extended_Pictographic}` matches ASCII.** `emoji-fix.js:10` is true for `0-9`, `#`, `*`, `©`, `®`. So `EMOJI.test("call 555-1234")` triggers `fix()`, one forced `getComputedStyle` and one inline-style write per containing element. On X (timestamps, like/repost counts, phone numbers in DMs) that is constant, pointless work — RANGE excludes ASCII so the render is unchanged. Gate on an explicit emoji set, not `Extended_Pictographic` alone.
+
+**5. [Correctness] Keycaps render broken.** `1️⃣` is `0031 FE0F 20E3`; RANGE (`emoji-fix.js:7-9`) contains `20E3` and `FE0F` but not `0031`, and fallback is per-character, so the base digit comes from the page font and the enclosing keycap from Noto. Add U+0023, U+002A, U+0030-0039 to RANGE so whole sequences resolve from Noto.
+
+**6. [Correctness] Flags are never fixed.** Regional Indicators U+1F1E6-1F1FF are in RANGE but are `Regional_Indicator`, not `Extended_Pictographic`, so `EMOJI.test("🇺🇸")` is false and `fix()` never runs — the exact blank-space symptom on a flag. Same for lone skin-tone modifiers U+1F3FB-1F3FF. Match `\p{Regional_Indicator}` (and the modifier range) too.
+
+**7. [Correctness] Captured font stack goes stale.** `emoji-fix.js:21-23` snapshots the computed stack once and `done` latches the element forever. When the page later changes fonts — X's display settings, a theme or class swap on a React-reused node — the inline style still pins the *old* stack, so non-emoji text renders in the stale font. Observe `attributes` with `attributeFilter:['class','style']` and re-derive, or don't embed the stack at all.
+
+**8. [Correctness] `!important` beats you.** `emoji-fix.js:23` sets a non-important declaration; any page rule with `font-family: … !important` wins and the emoji stay blank. Pass `'important'`.
+
+**9. [Correctness] Missing frame classes.** `all_frames:true` does not reach `about:blank`, `srcdoc`, `data:` or `blob:` frames. Add `"match_about_blank": true` and `"match_origin_as_fallback": true` to both content scripts.
+
+**10. [Correctness] SVG `<text>` skipped.** `emoji-fix.js:20` bails on any `svg` ancestor, but `<text>`/`<tspan>` accept `font-family` and are where SVG emoji live. Skip only `<script>`/`<style>`.
+
+**11. [Correctness] Undetectable holes.** Closed shadow roots, `::before`/`::after` `content`, `<input value>`, `<img alt>`, canvas, and a replaced `document.body` (observer dies with it) are all invisible. Document these limits; if X moves the chat root to `mode:'closed'` there is no content-script fix.
+
+**12. [Perf] Observer callback does synchronous work per record.** `emoji-fix.js:27-39,46-54`: a full TreeWalker for every added element and a `getComputedStyle` per fix inside the MO callback, plus a separate observation of every shadow root. Collect candidate parents in a `Set`, dedupe, process once on `requestIdleCallback`/rAF, and short-circuit when `el.style.fontFamily` already contains FAMILY. Keep behaviour identical.
+
+**13. [Manifest] Add `"minimum_chrome_version": "111"`** (`world: MAIN`); consider `short_name`, `homepage_url`, `author`. For an open-source release you must ship the **OFL-1.1** text and attribution for the bundled Noto Color Emoji. For the Web Store, `<all_urls>` on all frames triggers the "read and change all your data" warning and extra review — justify it in the listing.

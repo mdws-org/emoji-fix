@@ -1,0 +1,30 @@
+const has=(el)=>!!el&&getComputedStyle(el).fontFamily.includes('EmojiFixNoto');
+const kc=(el)=>getComputedStyle(el).fontFamily.includes('EmojiFixNotoKeycap');
+document.getElementById('sh').attachShadow({mode:'open'}).textContent='shadow direct 😀';
+const b=document.getElementById('blank'); b.contentDocument.body.innerHTML='<p id=x>blank 😀</p>';
+setTimeout(()=>{ // framework-style reuse: reset inline style, then change text
+  const rs=document.getElementById('rs'); rs.textContent='now 🎉';
+},500);
+setTimeout(()=>{ const rs=document.getElementById('rs'); rs.removeAttribute('style'); rs.textContent='again 🚀'; },1200);
+setTimeout(()=>{ // body replacement
+  const nb=document.createElement('body'); nb.innerHTML=document.body.innerHTML; const keep=document.body; document.documentElement.replaceChild(nb,keep);
+  const p=document.createElement('p'); p.id='late'; p.textContent='after body swap 🙂'; nb.appendChild(p);
+},2000);
+setTimeout(()=>{const g=id=>document.getElementById(id); const o=[];
+ const sh=document.getElementById('sh');
+ o.push('flag fixed='+has(g('flag')));
+ o.push('keycap fixed='+has(g('keycap'))+' keycapFamily='+kc(g('keycap')));
+ o.push('digits+emoji keycapFamily(should be false)='+kc(g('digits')));
+ o.push('plain TM fixed(should be false)='+has(g('tm')));
+ o.push('plain check fixed(should be false)='+has(g('check')));
+ o.push('heart fixed='+has(g('heart'))+' skin fixed='+has(g('skin')));
+ o.push('!important rule beaten='+has(g('imp')));
+ o.push('contenteditable host fixed='+has(g('ce'))+' inner p inline style(should be empty)="'+g('cep').getAttribute('style')+'"');
+ o.push('input fixed='+has(g('inp'))+' svg text fixed='+has(g('svgt')));
+ o.push('react reuse fixed='+has(g('rs')));
+ o.push('shadow direct text host fixed='+has(sh));
+ o.push('about:blank iframe fixed='+has(document.getElementById('blank').contentDocument.getElementById('x')));
+ o.push('srcdoc iframe fixed='+has(document.getElementById('srcdoc').contentDocument.getElementById('x')));
+ o.push('after body swap fixed='+has(g('late')));
+ o.push('font url='+([...document.querySelectorAll('style')].map(s=>s.textContent).join('').match(/chrome-extension:\/\/[^/]+/)||['none'])[0]+' fonts='+[...document.fonts].map(f=>f.family+':'+f.status).join(','));
+ fetch('/report?'+encodeURIComponent(o.join('\n')));},4500);
