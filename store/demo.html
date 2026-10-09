@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8"><title>Emoji Fix demo</title>
+<style>
+:root{--paper:#f6f1e7;--ink:#1d1b16;--muted:#7a7365;--bubble:#ffffff;--mine:#f5b01e}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--paper);color:var(--ink);font:22px/1.4 -apple-system,"Helvetica Neue",sans-serif;display:flex;align-items:center;justify-content:center}
+.wrap{width:760px}
+.label{font:600 15px -apple-system,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 22px 4px}
+.msg{max-width:520px;padding:14px 20px;border-radius:22px;background:var(--bubble);margin:10px 0;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+.me{margin-left:auto;background:var(--mine)}
+.big{font-size:64px;line-height:1.1;padding:6px 4px;background:none;box-shadow:none}
+</style>
+<div class="wrap">
+<p class="label" id="label">Brave on macOS</p>
+<div class="msg">Happy birthday! 🎉🎂</div>
+<div class="msg me">Thank you!! 🥹 Dinner at 7? 🍝</div>
+<div class="msg">Booked: 🇺🇸 to 🇯🇵 in March ✈️</div>
+<div class="msg me">Rate the trip 1️⃣ to 5️⃣ when you're back</div>
+<div class="msg big">❤️ 👍 🔥 😂 🙏</div>
+</div>
+<script>const l=new URLSearchParams(location.search).get('l');if(l)document.getElementById('label').textContent=l;</script>
