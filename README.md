@@ -17,9 +17,9 @@ If emoji draw correctly in your browser, you do not need this extension.
 - Gives keycap digits the bundled font only in elements that contain a keycap, so that other digits keep the page's font.
 - In a rich-text editor (`contenteditable`), sets the font on the editing host and not on the edited content, so that the style does not become part of the document.
 - Scans open shadow roots and watches them. X renders its chat inside a shadow root. A small script in the page's own JavaScript context (`shadow-hook.js`) reports each new open shadow root to the extension.
-- Loads the font from inside the extension through a per-session URL (`use_dynamic_url`), so pages that restrict font sources with a Content-Security-Policy cannot block it and pages cannot probe for the extension's fixed ID.
+- Loads the font from inside the extension. Chromium exempts extension resources from a page's Content-Security-Policy, so sites that restrict font sources cannot block it. The font URL changes every browser session (`use_dynamic_url`), so a page cannot probe for the extension by a fixed ID.
 
-The extension does not make network requests or store data.
+The extension does not request permissions, make network requests or store data. A page can still tell that it is running, because the injected `@font-face` and the inline `font-family` values are visible in the page.
 
 ## Emoji Swap and X
 
@@ -46,6 +46,10 @@ After you change the files, click the reload arrow on the extension's card in `b
 - Closed shadow roots cannot be reached, so emoji inside them stay blank.
 - Text in `<canvas>`, in CSS `content`, and in `about:blank` frames that the parent page fills by script is not changed.
 - Requires Chromium 119 or later.
+
+## Review
+
+`review/` holds the security and bug review of version 1.3.0: the brief, the reply from each of the seven reviewing models, and `review/synthesis-r1.md`, which lists each finding as fixed, refuted or accepted, with the test behind it. `review/probes/regression.html` is the regression page. To run it, serve the folder with `python3 review/probes/srv.py review/probes`, open http://127.0.0.1:8768/regression.html in a browser with the extension loaded, and read `review/probes/report.txt` after five seconds.
 
 ## Font
 
