@@ -1,22 +1,22 @@
 # Round 1 synthesis: security and bugs (Emoji Fix 1.2.0 -> 1.3.0)
 
-Brief: `brief-r1.md`. Seven seats, run 2026-10-09. Every defect below was reproduced or refuted in a clean Chromium 155 profile (Brave Origin Beta 1.98.52) with the extension loaded unpacked; `probes/regression.html` is the final check (14 of 15 cases pass on 1.3.0; the failure is a documented limit).
+Brief: `brief-r1.md`. Seven models, run 2026-10-09. Every defect below was reproduced or refuted in a clean Chromium 155 profile (Brave Origin Beta 1.98.52) with the extension loaded unpacked; `probes/regression.html` is the final check (14 of 15 cases pass on 1.3.0; the failure is a documented limit).
 
-## Seats
+## Reviewers
 
-| Seat | Route | Bytes |
-|---|---|---|
-| DeepSeek V4.1 Flash | ccx | 5517 |
-| Gemini | agyx | 6497 |
-| Kimi K3 high | Devin | 7024 |
-| SWE-2 high | Devin | 5615 |
-| GPT-6 Astra high | Devin | 6413 |
-| Grok 4.6 high | Devin | 4648 |
-| GPT-5.6 Terra (Codex) | ccx | 7801 |
+| Model | Reply |
+|---|---|
+| DeepSeek V4.1 Flash | `review_deepseek-v4.1-flash.md` |
+| Gemini | `review_gemini.md` |
+| Kimi K3 | `review_kimi-k3.md` |
+| SWE-2 | `review_swe-2.md` |
+| GPT-6 Astra | `review_gpt-6-astra.md` |
+| Grok 4.6 | `review_grok-4.6.md` |
+| GPT-5.6 Terra | `review_gpt-5.6-terra.md` |
 
 ## Verified defects, fixed in 1.3.0
 
-| Defect | Seats | Evidence |
+| Defect | Models | Evidence |
 |---|---|---|
 | Flags, keycaps and lone skin tones are not detected (`\p{Extended_Pictographic}` excludes them) | 7 of 7 | A flag-only element was left unfixed in the browser |
 | Keycap bases (`#`, `*`, `0-9`) are outside `unicode-range`, so keycaps split across two fonts | 6 of 7 | Fixed with a second font family applied only to elements that contain a keycap; a digit beside a non-keycap emoji keeps the page font |
@@ -35,7 +35,7 @@ Brief: `brief-r1.md`. Seven seats, run 2026-10-09. Every defect below was reprod
 
 ## Refuted
 
-| Claim | Seats | Evidence |
+| Claim | Models | Evidence |
 |---|---|---|
 | A strict `style-src` without `'unsafe-inline'` blocks the injected `<style>` | SWE-2, Gemini, Grok, Codex (as a risk) | Under `style-src 'self'` the `@font-face` applied and the font loaded |
 | A `font-src` without `chrome-extension:` blocks the font | Grok | x.com's `font-src` has no `chrome-extension:` and the font loads there |
@@ -46,7 +46,7 @@ Brief: `brief-r1.md`. Seven seats, run 2026-10-09. Every defect below was reprod
 
 ## Accepted, not fixed
 
-- Detection of the extension by the page: the inline `font-family`, the readable `<style>` and the wrapped `attachShadow` all reveal it. `use_dynamic_url` removes only the stable-ID probe (all seats agree this is the residual).
+- Detection of the extension by the page: the inline `font-family`, the readable `<style>` and the wrapped `attachShadow` all reveal it. `use_dynamic_url` removes only the stable-ID probe (all seven models agree this is the residual).
 - A page can dispatch the shadow event or declare its own `EmojiFixNoto` face. Both affect only the page's own rendering and cost; no page data leaves the page and the extension holds no permissions.
 - The captured font stack goes stale if the page later changes that element's font (README limit).
 - `about:blank` frames filled by the parent page's script, closed shadow roots, CSS `content`, and `<canvas>` (README limits).
