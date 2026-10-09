@@ -50,7 +50,7 @@ Emoji draw in Google's Noto design, not Apple's. Noto Color Emoji is under the S
 
 **Data usage:** Select none of the data types. Certify all three statements: data is not sold to third parties, not used or transferred for purposes unrelated to the extension's purpose, and not used or transferred to determine creditworthiness or for lending.
 
-**Privacy policy URL:** Not required, because the extension does not collect user data.
+**Privacy policy URL:** https://github.com/mdws-org/emoji-fix/blob/main/PRIVACY.md (the dashboard requires a reachable URL even though the extension does not collect user data).
 
 ## Distribution tab
 
