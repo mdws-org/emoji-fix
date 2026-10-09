@@ -27,10 +27,10 @@ The extension does not request permissions, make network requests or store data.
 
 ## Install
 
-1. Download this repository and unzip it, or clone it.
+1. Download `emoji-fix-<version>.zip` from the [latest release](https://github.com/mdws-org/emoji-fix/releases/latest) and unzip it. A clone of this repository also works.
 2. Open `brave://extensions` (or `chrome://extensions`).
 3. Turn on Developer mode.
-4. Click Load unpacked and select the repository folder.
+4. Click Load unpacked and select the unzipped folder.
 5. Reload any open tabs.
 
 Each browser profile needs its own installation. If you also use Emoji Swap, turn it off so that the two extensions do not both set fonts on the same text.
