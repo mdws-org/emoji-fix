@@ -14,8 +14,8 @@
   // Characters that default to emoji presentation (this includes flags and skin
   // tones), text-default pictographs followed by U+FE0F, and keycaps. Plain
   // text symbols such as the trademark sign or a check mark are left alone.
-  const EMOJI = /\p{Emoji_Presentation}|\p{Extended_Pictographic}️|[#*0-9]️?⃣/u;
-  const KEYCAP = /[#*0-9]️?⃣/u;
+  const EMOJI = /\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F|[#*0-9]\uFE0F?\u20E3/u;
+  const KEYCAP = /[#*0-9]\uFE0F?\u20E3/u;
 
   const fontUrl = chrome.runtime.getURL('fonts/NotoColorEmoji.woff2');
   const face = (family, range) => `@font-face { font-family: "${family}"; ` +
