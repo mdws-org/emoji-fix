@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Emoji Fix",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Draws emoji with a bundled Noto Color Emoji font on Macs where Chromium browsers draw Apple Color Emoji blank.",
   "minimum_chrome_version": "119",
   "homepage_url": "https://github.com/mdws-org/emoji-fix",
@@ -11,33 +11,24 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "shadow-hook.js"
-      ],
-      "run_at": "document_start",
-      "all_frames": true,
-      "world": "MAIN",
-      "match_about_blank": true,
-      "match_origin_as_fallback": true
-    },
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "emoji-fix.js"
-      ],
-      "run_at": "document_start",
-      "all_frames": true,
-      "match_about_blank": true,
-      "match_origin_as_fallback": true
-    }
+  "permissions": [
+    "scripting",
+    "storage"
   ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Emoji Fix",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
   "web_accessible_resources": [
     {
       "resources": [

@@ -19,8 +19,10 @@ What it covers:
 - Flags, keycaps such as 1️⃣, and skin tones.
 - Rich-text editors: the font is set on the editor's container, so it does not become part of what you write.
 
+Turn it off for any site from its toolbar button. It never runs inside anti-bot challenges such as Cloudflare Turnstile.
+
 What it does not do:
-- It does not request any permissions, make network requests, or collect or store data.
+- It does not make network requests or collect data. The only thing it stores is the list of sites you turned it off for.
 - It does not change text symbols such as the trademark sign or check marks.
 
 If emoji already draw correctly in your browser, you do not need this extension.
@@ -44,7 +46,11 @@ Emoji draw in Google's Noto design, not Apple's. Noto Color Emoji is under the S
 
 **Single purpose:** Draw emoji on web pages with a bundled color emoji font, for Macs where Chromium browsers draw the system emoji font as blank space.
 
-**Host permission justification** (the content scripts match all URLs): Emoji can appear on any web page, so the content scripts run on all pages to find emoji text and set the bundled font on the elements that contain it. The scripts read only the page's text and font styles, change only the `font-family` of elements that contain emoji, and send nothing anywhere.
+**Host permission justification** (`<all_urls>`): Emoji can appear on any web page, so the content scripts run on all pages to find emoji text and set the bundled font on the elements that contain it. The scripts read only the page's text and font styles, change only the `font-family` of elements that contain emoji, and send nothing anywhere.
+
+**scripting justification:** The service worker registers the content scripts with `chrome.scripting.registerContentScripts`, so that it can exclude the sites the user turned the extension off for, and the frames of anti-bot challenges.
+
+**storage justification:** Stores the list of site host names the user turned the extension off for. Nothing else is stored.
 
 **Remote code:** No, I am not using remote code. All JavaScript and the font are files in the package.
 

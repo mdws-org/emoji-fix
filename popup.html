@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Emoji Fix</title>
+<style>
+  :root { color-scheme: light dark; --fg: #202124; --muted: #5f6368; --bg: #fff; --btn: #1a73e8; --btn-fg: #fff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg: #e8eaed; --muted: #9aa0a6; --bg: #202124; --btn: #8ab4f8; --btn-fg: #202124; }
+  }
+  body { margin: 0; padding: 14px 16px; width: 240px; font: 13px/1.4 system-ui, sans-serif; color: var(--fg); background: var(--bg); }
+  #host { font-weight: 600; overflow-wrap: anywhere; }
+  #state { margin: 2px 0 12px; color: var(--muted); }
+  button { width: 100%; padding: 7px 0; border: 0; border-radius: 6px; font: inherit; font-weight: 600; color: var(--btn-fg); background: var(--btn); cursor: pointer; }
+  button[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div id="host"></div>
+<div id="state"></div>
+<button id="toggle" hidden></button>
+<script src="popup.js"></script>
+</body>
+</html>

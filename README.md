@@ -19,7 +19,21 @@ If emoji draw correctly in your browser, you do not need this extension.
 - Scans open shadow roots and watches them. X renders its chat inside a shadow root. A small script in the page's own JavaScript context (`shadow-hook.js`) reports each new open shadow root to the extension.
 - Loads the font from inside the extension. Chromium exempts extension resources from a page's Content-Security-Policy, so sites that restrict font sources cannot block it. The font URL changes every browser session (`use_dynamic_url`), so a page cannot probe for the extension by a fixed ID.
 
-The extension does not request permissions, make network requests or store data. A page can still tell that it is running, because the injected `@font-face` and the inline `font-family` values are visible in the page.
+The extension does not make network requests. The only data it stores is the list of sites it is turned off for. A page can still tell that it is running, because the injected `@font-face` and the inline `font-family` values are visible in the page.
+
+## Turning it off for a site
+
+Click the extension's toolbar button and choose **Turn off for this site**. The tab reloads without the extension, and the button shows an "off" badge on that site. The same button turns it back on. The list is kept in the browser's synced extension storage.
+
+A site is one host name, such as `www.example.com`. Turning a site off covers its pages and its frames. A frame from another site embedded in its pages keeps the extension unless that site is turned off too.
+
+The extension never runs in the frames of anti-bot challenges (Cloudflare Turnstile, hCaptcha, reCAPTCHA and Arkose Labs). Those frames check that the browser's built-in functions are unmodified, and `shadow-hook.js` replaces one, so with the extension running in them Turnstile showed "Verification failed".
+
+## Permissions
+
+- `host_permissions` for all sites: the scripts that find and fix emoji run on every page. Before version 1.4.0 the manifest declared them for all sites directly, which grants the same access.
+- `scripting`: the extension's service worker registers those scripts itself, so that it can leave out the sites that are turned off.
+- `storage`: holds the list of sites that are turned off.
 
 ## Emoji Swap and X
 
