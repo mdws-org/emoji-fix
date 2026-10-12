@@ -15,7 +15,7 @@ If emoji draw correctly in your browser, you do not need this extension.
 - Declares an `@font-face` for the bundled font. The `unicode-range` covers emoji code points only, so all other text keeps the page's fonts.
 - Puts the bundled font at the front of the `font-family` of each element whose text contains an emoji, and watches the page for new emoji. An emoji here is a character that defaults to emoji presentation (this includes flags and skin tones), a pictograph followed by U+FE0F, or a keycap such as 1️⃣. Text symbols such as the trademark sign or a check mark are not changed.
 - Gives keycap digits the bundled font only in elements that contain a keycap, so that other digits keep the page's font.
-- In a rich-text editor (`contenteditable`), sets the font on the editing host and not on the edited content, so that the style does not become part of the document.
+- In a rich-text editor (`contenteditable`), sets the font on the editing host and not on the edited content, so that the style does not become part of the document. Content that sets its own inline `font-family`, as each paragraph in Outlook's compose window does, does not inherit the host's font, so it gets a stylesheet rule that matches that inline declaration instead.
 - Scans open shadow roots and watches them. X renders its chat inside a shadow root. A small script in the page's own JavaScript context (`shadow-hook.js`) reports each new open shadow root to the extension.
 - Loads the font from inside the extension. Chromium exempts extension resources from a page's Content-Security-Policy, so sites that restrict font sources cannot block it. The font URL changes every browser session (`use_dynamic_url`), so a page cannot probe for the extension by a fixed ID.
 
@@ -26,6 +26,10 @@ The extension does not request permissions, make network requests or store data.
 [Emoji Swap](https://chromewebstore.google.com/detail/emoji-swap/ggjmjkeaeojfdcbafefloifeaepeaeah) solves the same problem with a choice of emoji fonts, and it works on most sites. It does not work on X: it loads its fonts from jsDelivr, which X's Content-Security-Policy blocks because it allows fonts only from X's own servers, and it does not look inside shadow roots. Emoji Fix bundles its font and scans shadow roots, so emoji appear on X, including the chat and the reaction picker.
 
 ## Install
+
+Install Emoji Fix from the [Chrome Web Store](https://chromewebstore.google.com/detail/emoji-fix/pgjaolgpjogppmhdadddafkfcbnndeam). Brave and other Chromium browsers install from it too. The store copy updates itself. It can trail the latest GitHub release by a few days while Google reviews each version.
+
+To install from a release instead:
 
 1. Download `emoji-fix-<version>.zip` from the [latest release](https://github.com/mdws-org/emoji-fix/releases/latest) and unzip it. A clone of this repository also works.
 2. Open `brave://extensions` (or `chrome://extensions`).
@@ -42,6 +46,7 @@ After you change the files, click the reload arrow on the extension's card in `b
 - Emoji draw in Google's Noto design, not Apple's.
 - The font adds 2.0 MB, read from disk for each page that contains emoji.
 - A text symbol in the same element as an emoji, as in "Brand™ 😀", also takes the Noto glyph.
+- Inside a rich-text editor, content whose font is set by a CSS class instead of an inline `font-family` is not covered, so its emoji can stay blank.
 - The page's font stack is read once per element. If the page later changes that element's font, the element keeps the earlier stack.
 - Closed shadow roots cannot be reached, so emoji inside them stay blank.
 - Text in `<canvas>`, in CSS `content`, and in `about:blank` frames that the parent page fills by script is not changed.
