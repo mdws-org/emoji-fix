@@ -27,15 +27,36 @@
   }
   ensureStyle();
 
+  function target(textNode) {
+    const el = textNode.parentElement || (textNode.parentNode && textNode.parentNode.host);
+    return !el || el.closest('script, style') ? null : el;
+  }
+
   // Rich-text editors serialize the inline styles of their content, so inside
   // one the font goes on the editing host instead of on the edited markup.
-  function target(textNode) {
-    let el = textNode.parentElement || (textNode.parentNode && textNode.parentNode.host);
-    if (!el || el.closest('script, style')) return null;
-    if (el.isContentEditable) {
-      while (el.parentElement && el.parentElement.isContentEditable) el = el.parentElement;
-    }
+  // Content that sets its own inline font-family (Outlook does, per paragraph)
+  // does not inherit it from the host, so it gets a stylesheet rule matching
+  // that inline declaration instead.
+  function editingHost(el) {
+    while (el.parentElement && el.parentElement.isContentEditable) el = el.parentElement;
     return el;
+  }
+  function inlineFontSource(el) {
+    for (; el.parentElement && el.parentElement.isContentEditable; el = el.parentElement) {
+      if (el.style.getPropertyValue('font-family')) return el;
+    }
+    return null;
+  }
+  const cssString = (s) => s.replace(/["\\]/g, '\\$&')
+    .replace(/[\n\r\f]/g, (c) => `\\${c.charCodeAt(0).toString(16)} `);
+  const editorRules = new Map();
+  function addEditorRule(el, keycap) {
+    const decl = /font-family\s*:[^;]*/i.exec(el.getAttribute('style') || '');
+    if (!decl || editorRules.get(decl[0]) === true || editorRules.get(decl[0]) === keycap) return;
+    editorRules.set(decl[0], keycap);
+    const prefix = keycap ? `"${FAMILY}", "${KEYCAP_FAMILY}"` : `"${FAMILY}"`;
+    style.textContent += `\n[contenteditable] [style*="${cssString(decl[0])}"] ` +
+      `{ font-family: ${prefix}, ${el.style.getPropertyValue('font-family')} !important; }`;
   }
 
   // Elements to fix are collected first and styled once per animation frame,
@@ -70,7 +91,17 @@
 
   function check(textNode) {
     const text = textNode.nodeValue;
-    if (EMOJI.test(text)) queue(target(textNode), KEYCAP.test(text));
+    if (!EMOJI.test(text)) return;
+    const el = target(textNode);
+    if (!el) return;
+    const keycap = KEYCAP.test(text);
+    if (!el.isContentEditable) {
+      queue(el, keycap);
+      return;
+    }
+    const source = inlineFontSource(el);
+    if (source) addEditorRule(source, keycap);
+    queue(editingHost(el), keycap);
   }
   function checkControl(el) {
     if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') && EMOJI.test(el.value)) {
